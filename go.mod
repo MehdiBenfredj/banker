@@ -1,4 +1,4 @@
-module banker
+module github.com/MehdiBenfredj/banker
 
 go 1.23
 
