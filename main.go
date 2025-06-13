@@ -7,28 +7,29 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/MehdiBenfredj/banker/internal/controllers"
-	"github.com/MehdiBenfredj/banker/internal/repositories"
-	"github.com/MehdiBenfredj/banker/internal/services"
+	"github.com/MehdiBenfredj/banker/internal/account"
+	"github.com/MehdiBenfredj/banker/internal/card"
+	"github.com/MehdiBenfredj/banker/internal/user"
 
 	_ "github.com/lib/pq"
 )
 
 // disatch depedning on route
-func globalHandler(writer http.ResponseWriter, request *http.Request, db *sql.DB) {
-	accountRepo := repositories.NewAccountRepository(db)
-	accountService := services.NewAccountService(accountRepo)
-	accountController := controllers.NewAccountController(accountService)
+func globalHandler(
+	writer http.ResponseWriter,
+	request *http.Request,
+	accountController *account.AccountController,
+	userController *user.UserController, // assuming userController is similar to accountController
+	cardController *card.CardController, // assuming cardController is similar to accountController
+) {
 
- 
 	switch request.URL.Path {
 	case "/user":
-		controllers.UserController(writer, request)
+		userController.Route(writer, request)
 	case "/account":
-		//call the account controller
-		accountController.Test()
+		accountController.TestController()
 	case "/card":
-		controllers.CardController(writer, request)
+		//	controllers.CardController(writer, request)
 	}
 }
 
@@ -47,8 +48,12 @@ func main() {
 
 	fmt.Println("Connected to PostgreSQL!")
 
+	accountController := account.NewAccountModule(db)
+	cardController := card.NewCardModule(db)
+	userController := user.NewUserModule(db)
+
 	http.HandleFunc("/", func(responseWriter http.ResponseWriter, request *http.Request) {
-		globalHandler(responseWriter, request, db)
+		globalHandler(responseWriter, request, accountController, userController, cardController)
 	})
 	fmt.Println("Listening on port 8080")
 	http.ListenAndServe(":8080", nil)

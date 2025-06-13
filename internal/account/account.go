@@ -1,4 +1,4 @@
-package model
+package account
 
 type Account struct {
 	AccountID string `json:"account_id"`

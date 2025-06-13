@@ -1,4 +1,4 @@
-package repositories
+package account
 
 import (
 	"database/sql"
@@ -7,6 +7,12 @@ import (
 
 type AccountRepository struct {
 	db *sql.DB
+}
+
+func NewUAccountModule(db *sql.DB) *AccountController {
+	repo := NewAccountRepository(db)
+	svc := NewAccountService(repo)
+	return NewAccountController(svc)
 }
 
 func NewAccountRepository(db *sql.DB) *AccountRepository {
