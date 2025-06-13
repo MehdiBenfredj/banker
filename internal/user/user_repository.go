@@ -2,6 +2,8 @@ package user
 
 import (
 	"database/sql"
+	"fmt"
+	"log"
 )
 
 type UserRepository struct {
@@ -17,10 +19,14 @@ func (r *UserRepository) CreateUser(firstName, lastName, dateOfBirth, placeOfBir
 	query := `INSERT INTO users (first_name, last_name, date_of_birth, place_of_birth, address) 
 			  VALUES ($1, $2, $3, $4, $5)`
 	_, err := r.db.Exec(query, firstName, lastName, dateOfBirth, placeOfBirth, address)
+	if err != nil {
+		fmt.Print("here !!!")
+		log.Fatal(err)
+	}
 	return err
 }
 
-func (r *UserRepository) GetUserByID(user_id int) (User, error) {
+func (r *UserRepository) GetUserByID(user_id string) (User, error) {
 	query := `SELECT *
 			  FROM users WHERE user_id = $1`
 	row := r.db.QueryRow(query, user_id)
@@ -53,7 +59,7 @@ func (r *UserRepository) GetUserByLastName(lastName string) ([]User, error) {
 	return users, nil
 }
 
-func (r *UserRepository) UpdateUser(user_id int, firstName, lastName, dateOfBirth, placeOfBirth, address string) error {
+func (r *UserRepository) UpdateUser(user_id string, firstName, lastName, dateOfBirth, placeOfBirth, address string) error {
 	query := `UPDATE users 
 			  SET first_name = $1, last_name = $2, date_of_birth = $3, place_of_birth = $4, address = $5 
 			  WHERE user_id = $6`
@@ -61,7 +67,7 @@ func (r *UserRepository) UpdateUser(user_id int, firstName, lastName, dateOfBirt
 	return err
 }
 
-func (r *UserRepository) DeleteUser(user_id int) error {
+func (r *UserRepository) DeleteUser(user_id string) error {
 	query := `DELETE FROM users WHERE user_id = $1`
 	_, err := r.db.Exec(query, user_id)
 	return err

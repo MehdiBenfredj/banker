@@ -3,9 +3,9 @@ package user
 import (
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"strconv"
 )
 
 type UserController struct {
@@ -27,8 +27,8 @@ func (c *UserController) CreateUser(firstName, lastName, dateOfBirth, placeOfBir
 	return c.Service.CreateUser(firstName, lastName, dateOfBirth, placeOfBirth, address)
 }
 
-func (c *UserController) GetUserByID(id int) (User, error) {
-	user, err := c.Service.GetUserByID(id)
+func (c *UserController) GetUserByID(user_id string) (User, error) {
+	user, err := c.Service.GetUserByID(user_id)
 	if err != nil {
 		return User{}, err
 	}
@@ -43,19 +43,17 @@ func (c *UserController) GetUserByLastName(lastName string) ([]User, error) {
 	return users, nil
 }
 
-func (c *UserController) UpdateUser(id int, firstName, lastName, dateOfBirth, placeOfBirth, address string) error {
-	return c.Service.UpdateUser(id, firstName, lastName, dateOfBirth, placeOfBirth, address)
+func (c *UserController) UpdateUser(user_id string, firstName, lastName, dateOfBirth, placeOfBirth, address string) error {
+	return c.Service.UpdateUser(user_id, firstName, lastName, dateOfBirth, placeOfBirth, address)
 }
 
-func (c *UserController) DeleteUser(id int) error {
-	return c.Service.DeleteUser(id)
+func (c *UserController) DeleteUser(user_id string) error {
+	return c.Service.DeleteUser(user_id)
 }
 
 func (c *UserController) GetAllUsers() ([]User, error) {
 	users, err := c.Service.GetAllUsers()
 	if err != nil {
-		// Log the error or handle it as needed
-		// For example, you can log it or return a specific error message
 		log.Printf("Error getting all users: %v", err)
 		return nil, err
 	}
@@ -65,21 +63,32 @@ func (c *UserController) GetAllUsers() ([]User, error) {
 func (c *UserController) Route(writer http.ResponseWriter, request *http.Request) {
 	switch request.Method {
 	case http.MethodPost:
-		c.CreateUser(request.FormValue("first_name"),
-			request.FormValue("last_name"),
-			request.FormValue("date_of_birth"),
-			request.FormValue("place_of_birth"),
-			request.FormValue("address"))
+		var newUser User
+		err := json.NewDecoder(request.Body).Decode(&newUser)
+		fmt.Println(newUser)
+		if err != nil {
+			http.Error(writer, "Invalid request body", http.StatusBadRequest)
+			return
+		}
+		err = c.CreateUser(
+			newUser.FirstName,
+			newUser.LastName,
+			newUser.DateOfBirth,
+			newUser.PlaceOfBirth,
+			newUser.Address,
+		)
+		if err != nil {
+			http.Error(writer, "Could not add user", http.StatusInternalServerError)
+			log.Fatal(err)
+			return
+		}
 		writer.WriteHeader(http.StatusCreated)
 		writer.Write([]byte("User created successfully"))
+		return
+
 	case http.MethodGet:
 		if request.URL.Query().Has("user_id") {
-			id := request.URL.Query().Get("user_id")
-			userID, err := strconv.Atoi(id)
-			if err != nil {
-				http.Error(writer, "Invalid user ID", http.StatusBadRequest)
-				return
-			}
+			userID := request.URL.Query().Get("user_id")
 			user, err := c.GetUserByID(userID)
 			if err != nil {
 				http.Error(writer, "User not found", http.StatusNotFound)
@@ -111,8 +120,40 @@ func (c *UserController) Route(writer http.ResponseWriter, request *http.Request
 		return
 	case http.MethodPut:
 		// Handle user update
+		userID := request.FormValue("user_id")
+		if userID == "" {
+			http.Error(writer, "User ID is required", http.StatusBadRequest)
+			return
+		}
+		err := c.UpdateUser(
+			userID,
+			request.FormValue("first_name"),
+			request.FormValue("last_name"),
+			request.FormValue("date_of_birth"),
+			request.FormValue("place_of_birth"),
+			request.FormValue("address"),
+		)
+		if err != nil {
+			http.Error(writer, "Failed to update user", http.StatusInternalServerError)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+		writer.Write([]byte("User updated successfully"))
 	case http.MethodDelete:
 		// Handle user deletion
+		userID := request.FormValue("user_id")
+		if userID == "" {
+			http.Error(writer, "Invalid user ID", http.StatusInternalServerError)
+			return
+		}
+		err := c.DeleteUser(userID)
+		if err != nil {
+			http.Error(writer, "Could not delete user!", http.StatusInternalServerError)
+			return
+		}
+		writer.WriteHeader(http.StatusOK)
+		writer.Write([]byte("User deleted successfully"))
+
 	default:
 		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return

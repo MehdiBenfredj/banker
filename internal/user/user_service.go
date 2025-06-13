@@ -14,8 +14,8 @@ func (s *UserService) CreateUser(firstName, lastName, dateOfBirth, placeOfBirth,
 	return s.Repository.CreateUser(firstName, lastName, dateOfBirth, placeOfBirth, address)
 }
 
-func (s *UserService) GetUserByID(id int) (User, error) {
-	user, err := s.Repository.GetUserByID(id)
+func (s *UserService) GetUserByID(user_id string) (User, error) {
+	user, err := s.Repository.GetUserByID(user_id)
 	if err != nil {
 		return User{}, err
 	}
@@ -30,12 +30,12 @@ func (s *UserService) GetUserByLastName(lastName string) ([]User, error) {
 	return users, nil
 }
 
-func (s *UserService) UpdateUser(id int, firstName, lastName, dateOfBirth, placeOfBirth, address string) error {
-	return s.Repository.UpdateUser(id, firstName, lastName, dateOfBirth, placeOfBirth, address)
+func (s *UserService) UpdateUser(user_id string, firstName, lastName, dateOfBirth, placeOfBirth, address string) error {
+	return s.Repository.UpdateUser(user_id, firstName, lastName, dateOfBirth, placeOfBirth, address)
 }
 
-func (s *UserService) DeleteUser(id int) error {
-	return s.Repository.DeleteUser(id)
+func (s *UserService) DeleteUser(user_id string) error {
+	return s.Repository.DeleteUser(user_id)
 }
 
 func (s *UserService) GetAllUsers() ([]User, error) {
