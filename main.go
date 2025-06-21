@@ -19,15 +19,15 @@ func globalHandler(
 	writer http.ResponseWriter,
 	request *http.Request,
 	accountController *account.AccountController,
-	userController *user.UserController, // assuming userController is similar to accountController
-	cardController *card.CardController, // assuming cardController is similar to accountController
+	userController *user.UserController,
+	cardController *card.CardController,
 ) {
 
 	switch request.URL.Path {
 	case "/user":
 		userController.Route(writer, request)
 	case "/account":
-		accountController.TestController()
+		accountController.Route(writer, request)
 	case "/card":
 		//	controllers.CardController(writer, request)
 	}

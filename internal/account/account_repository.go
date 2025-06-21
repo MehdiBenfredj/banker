@@ -2,13 +2,67 @@ package account
 
 import (
 	"database/sql"
-	"fmt"
+	"os"
+
+	"github.com/jacoelho/banking/iban"
+	"github.com/joho/godotenv"
 )
 
 type AccountRepository struct {
 	db *sql.DB
 }
 
+func (accountRepository *AccountRepository) GetAllAccounts() ([]Account, error) {
+	query := "SELECT * from accounts"
+	rows, error := accountRepository.db.Query(query)
+	if error != nil {
+		return nil, error
+	}
+	defer rows.Close()
+
+	var accounts []Account
+	for rows.Next() {
+		var account Account
+		if error = rows.Scan(&account.AccountID, &account.UserID, &account.BIC, &account.IBAN); error != nil {
+			return nil, error
+		}
+		accounts = append(accounts, account)
+	}
+	return accounts, nil
+}
+
+func (accountRepository *AccountRepository) GetAccountById(account_id string) (*Account, error) {
+	query := "SELECT * FROM 	accounts WHERE account_id = $1"
+	row := accountRepository.db.QueryRow(query, account_id)
+
+	var account Account
+	if err := row.Scan(&account.AccountID, &account.UserID, &account.BIC, &account.IBAN); err != nil {
+		return nil, err
+	}
+	return &account, nil
+}
+
+func (accountRepository *AccountRepository) CreateNewAccount(user_id string) error {
+	error := godotenv.Load()
+	if error != nil {
+		return error
+	}
+	BIC := os.Getenv("BIC")
+	IBAN, err := iban.Generate("FR")
+	if err != nil {
+		return err
+	}
+	query := "INSERT INTO accounts (user_id, bic, iban) VALUES ($1, $2, $3)"
+	_, err = accountRepository.db.Exec(query, user_id, BIC, IBAN)
+	return err
+}
+
+func (accountRepository *AccountRepository) DeleteAccount(account_id string) error {
+	query := "DELETE FROM accounts WHERE account_id = $1"
+	_, error := accountRepository.db.Exec(query, account_id);
+	return error
+}
+ 
 func NewUAccountModule(db *sql.DB) *AccountController {
 	repo := NewAccountRepository(db)
 	svc := NewAccountService(repo)
@@ -17,23 +71,4 @@ func NewUAccountModule(db *sql.DB) *AccountController {
 
 func NewAccountRepository(db *sql.DB) *AccountRepository {
 	return &AccountRepository{db: db}
-}
-
-func (ar *AccountRepository) Test() {
-	fmt.Println("account repository ! called")
-	// make a test query to the database
-	query := "SELECT 1"
-	row := ar.db.QueryRow(query)
-	if row.Err() != nil {
-		fmt.Println("Error executing query:", row.Err())
-		return
-	}
-	var result int
-	err := row.Scan(&result)
-	if err != nil {
-		fmt.Println("Error scanning result:", err)
-		return
-	}
-	fmt.Println("Test query result:", result)
-	fmt.Println("Account repository test successful!")
 }

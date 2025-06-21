@@ -2,8 +2,6 @@ package user
 
 import (
 	"database/sql"
-	"fmt"
-	"log"
 )
 
 type UserRepository struct {
@@ -19,10 +17,6 @@ func (r *UserRepository) CreateUser(firstName, lastName, dateOfBirth, placeOfBir
 	query := `INSERT INTO users (first_name, last_name, date_of_birth, place_of_birth, address) 
 			  VALUES ($1, $2, $3, $4, $5)`
 	_, err := r.db.Exec(query, firstName, lastName, dateOfBirth, placeOfBirth, address)
-	if err != nil {
-		fmt.Print("here !!!")
-		log.Fatal(err)
-	}
 	return err
 }
 

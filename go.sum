@@ -1,2 +1,10 @@
+github.com/bvnk/ccgen v0.0.0-20190508090321-2c486f899326 h1:zywIzuISyv3g/mxApw7fjze4vwYltVBMiAQcRPEkQso=
+github.com/bvnk/ccgen v0.0.0-20190508090321-2c486f899326/go.mod h1:59Foao42HcNOZ45znUu4BJ0M/Hp9mgYLhqYKvO+AWHs=
+github.com/jacoelho/banking v1.6.1 h1:wJYeXBEVlt9v/MgQy8XvPs4BIAa170MJWOJN0jMj7Bc=
+github.com/jacoelho/banking v1.6.1/go.mod h1:eLtVX3f638I/syDUKD4UOnjY98FGQqx0cu7fZDYa514=
+github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
+github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
 github.com/lib/pq v1.10.9/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
+github.com/phedde/luhn-algorithm v0.0.0-20241101133237-e52d92f74c0d h1:x9fULs+Tw2lKJtmOVZkCRW4p7UX9wCpUQZlE3L3u+28=
+github.com/phedde/luhn-algorithm v0.0.0-20241101133237-e52d92f74c0d/go.mod h1:sz9H19w21j0Qa9z4i0vdxA31KtH2r1p12H6DJNHO7hQ=

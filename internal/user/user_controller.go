@@ -151,9 +151,14 @@ func (c *UserController) Route(writer http.ResponseWriter, request *http.Request
 			http.Error(writer, "Could not delete user!", http.StatusInternalServerError)
 			return
 		}
+		error := c.DeleteUser(userID)
+		if error != nil {
+			http.Error(writer, "Could not delete user!", http.StatusInternalServerError)
+			return
+		}
 		writer.WriteHeader(http.StatusOK)
 		writer.Write([]byte("User deleted successfully"))
-
+		return
 	default:
 		http.Error(writer, "Method not allowed", http.StatusMethodNotAllowed)
 		return
